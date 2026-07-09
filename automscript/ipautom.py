@@ -2,55 +2,55 @@ import socket
 import ipaddress
 from concurrent.futures import ThreadPoolExecutor
 
-#verificar se uma porta especifica esta aberta em um ip
-def verifica_porta(ip, porta):
+#verifies if a specific door is opened in an IP
+def verify_door(ip, door):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1) #tempo limite para conexao
-            resultado = s.connect_ex((ip, porta))
-            if resultado == 0:
-                print(f"[+] Porta {porta} aberta em {ip}")
+            s.settimeout(1) #time limit for conection
+            result = s.connect_ex((ip, door))
+            if result == 0:
+                print(f"[+] Door {door} open in {ip}")
             else:
-                print(f"[*] Porta {porta} fechada em {ip}")
+                print(f"[*] Door {door} closed in {ip}")
     except Exception as e:
-        print(f"[-] Erro ao verificar porta {porta}: {e}")
+        print(f"[-] Error verifying door {door}: {e}")
 
-#realiza o scan das portas de um ip
-def scan_alvo(ip, portas):
-    print(f"[*] Iniciando o scan em {ip} nas portas: {portas}")
+#scan IP doors
+def scan_target(ip, doors):
+    verify_doors = []
+    print(f"[*] Starting scan in {ip} doors: {doors}")
     with ThreadPoolExecutor(max_workers=10) as executor:
-        for porta in portas:
-            executor.submit(verifica_porta, ip, porta)
+        for door in doors:
+            executor.submit(verify_door, ip, door)
 
 def main():
-    #menu principal do script
-    print("----Scan de Portas----")
+    #script main menu
+    print("----Doors Scan----")
 
-    #entrada do usuario de ip ou faixa de ips
-    alvo = input("Digite o IP ou a rede (ex.: 192.168.0.1 ou 192.168.0.0/24): ")
+    #user entry of IP
+    target = input("Type IP or Network (ex.: 192.168.0.1 ou 192.168.0.0/24): ")
 
-    #validacao do ip
+    #IP validation
     try:
-        if '/' in alvo:
-            ips = list(ipaddress.IPv4Network(alvo, strict=False))
+        if '/' in target:
+            ips = list(ipaddress.IPv4Network(target, strict=False))
         else:
-            ips = [ipaddress.IPv4Address(alvo)]
+            ips = [ipaddress.IPv4Address(target)]
     except ValueError:
-        print('[-] IP ou rede invalida!')
+        print('[-] IP ou Network invalid!')
         return
     
-    #entrada do usuario para portas
-    portas_input = input("Digite as portas a serem verificadas (ex.: 22, 80, 443 ou 1-1024): ")
-    portas = []
-    if '-' in portas_input:
-        inicio, fim = map(int, portas_input.split('-'))
-        portas = list(range(inicio, fim + 1))
+    #user entry to doors
+    doors_input = input("Type doors to be verified (ex.: 22, 80, 443 ou 1-1024): ")
+    doors = []
+    if '-' in doors_input:
+        start, end = map(int, doors_input.split('-'))
+        doors = list(range(start, end + 1))
     else:
-        portas = [int(p.strip()) for p in portas_input.split(',')]
+        doors = [int(p.strip()) for p in doors_input.split(',')]
     
-    #comecar o scan
+    #start scan
     for ip in ips:
-        scan_alvo(str(ip), portas)
+        scan_target(str(ip), doors)
 if __name__== "__main__":
     main()
-
